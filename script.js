@@ -24,7 +24,7 @@
 
   cw1.addEventListener("click", function () {
     answer.innerHTML = "";
-    var ld = createLoadingText(answer);
+    var ld = createLoadingText(answer, "Loading");
     fetch('https://jsonplaceholder.typicode.com/posts')
       .then(response => response.json())
       .then(array => {
@@ -45,7 +45,7 @@
 
   cw2.addEventListener("click", function () {
     answer.innerHTML = "";
-    var ld = createLoadingText(answer);
+    var ld = createLoadingText(answer, "Loading");
     fetch(`https://jsonplaceholder.typicode.com/posts/${postIdSelect.value}`)
       .then(response => response.json())
       .then(post => {
@@ -62,9 +62,35 @@
       })
   })
 
-  cw3.addEventListener("click", function () {
-    //TODO
-  })
+  cw3.addEventListener("submit", (event) => {
+    event.preventDefault();
+    answer.innerHTML = "";
+    var ld = createLoadingText(answer, "Processing");
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        body: JSON.stringify({
+        title: cw3.element["title"],
+        body: cw3.elements["content"],
+        userId: cw3.elements["userid"],
+      }),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then(response => response.json())
+      .then(post => {
+        const list = document.createElement("dl");
+        list.id = "posts";
+        const listItemTitle = document.createElement("dt");
+        const listItemDescription = document.createElement("dd");
+        listItemTitle.innerHTML = `<span class="postID">${post.id}</span><br/><h3>${post.userId}: ${post.title}</h3>`;
+        listItemDescription.innerHTML = post.body;
+        list.appendChild(listItemTitle);
+        list.appendChild(listItemDescription);
+        answer.replaceChild(list, ld.element);
+        clearInterval(ld.id);
+      })
+    })
 })();
 
 function ellipsisMove(id, elem) {
@@ -77,10 +103,10 @@ function ellipsisMove(id, elem) {
   return nid;
 }
 
-function createLoadingText(parent) {
+function createLoadingText(parent, text) {
   const loading = document.createElement("span");
   loading.id = "posts";
-  loading.append("Loading");
+  loading.append(text);
   const ellipsis = document.createElement("span");
   loading.appendChild(ellipsis);
   parent.appendChild(loading);
