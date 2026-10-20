@@ -4,6 +4,14 @@
   const cw2 = document.getElementById('cw2')
   const cw3 = document.getElementById('cw3')
   const answer = document.getElementById('answer')
+  const postIdSelect = document.getElementById("postId");
+
+  for(var i = 1; i <= 10; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.innerText = i.toString();
+    postIdSelect.add(opt, null);
+  }
 
   example.addEventListener("click", function () {
     fetch('https://jsonplaceholder.typicode.com/posts')
@@ -15,13 +23,8 @@
   })
 
   cw1.addEventListener("click", function () {
-    const loading = document.createElement("span");
-    loading.id = "posts";
-    loading.append("Loading");
-    const ellipsis = document.createElement("span");
-    loading.appendChild(ellipsis);
-    answer.appendChild(loading);
-    var id = ellipsisMove(null, ellipsis);
+    answer.innerHTML = "";
+    var ld = createLoadingText(answer);
     fetch('https://jsonplaceholder.typicode.com/posts')
       .then(response => response.json())
       .then(array => {
@@ -35,13 +38,28 @@
           list.appendChild(listItemTitle);
           list.appendChild(listItemDescription);
         }
-        answer.replaceChild(list, loading);
-        clearInterval(id);
+        answer.replaceChild(list, ld.element);
+        clearInterval(ld.id);
       })
   })
 
   cw2.addEventListener("click", function () {
-    //TODO
+    answer.innerHTML = "";
+    var ld = createLoadingText(answer);
+    fetch(`https://jsonplaceholder.typicode.com/posts/${postIdSelect.value}`)
+      .then(response => response.json())
+      .then(post => {
+        const list = document.createElement("dl");
+        list.id = "posts";
+        const listItemTitle = document.createElement("dt");
+        const listItemDescription = document.createElement("dd");
+        listItemTitle.innerHTML = `<span class="postID">${post.id}</span><br/><h3>${post.userId}: ${post.title}</h3>`;
+        listItemDescription.innerHTML = post.body;
+        list.appendChild(listItemTitle);
+        list.appendChild(listItemDescription);
+        answer.replaceChild(list, ld.element);
+        clearInterval(ld.id);
+      })
   })
 
   cw3.addEventListener("click", function () {
@@ -57,4 +75,14 @@ function ellipsisMove(id, elem) {
     elem.innerHTML = ".".repeat((dots++ % 3)+1);
   }
   return nid;
+}
+
+function createLoadingText(parent) {
+  const loading = document.createElement("span");
+  loading.id = "posts";
+  loading.append("Loading");
+  const ellipsis = document.createElement("span");
+  loading.appendChild(ellipsis);
+  parent.appendChild(loading);
+  return {element: loading, id: ellipsisMove(null, ellipsis)};
 }
