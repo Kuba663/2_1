@@ -4,7 +4,6 @@
   const cw2 = document.getElementById('cw2')
   const cw3 = document.getElementById('cw3')
   const answer = document.getElementById('answer')
-  const postList = document.getElementById("posts");
 
   example.addEventListener("click", function () {
     fetch('https://jsonplaceholder.typicode.com/posts')
@@ -16,6 +15,13 @@
   })
 
   cw1.addEventListener("click", function () {
+    const loading = document.createElement("span");
+    loading.id = "posts";
+    loading.append("Loading");
+    const ellipsis = document.createElement("span");
+    loading.appendChild(ellipsis);
+    answer.appendChild(loading);
+    var id = ellipsisMove(null, ellipsis);
     fetch('https://jsonplaceholder.typicode.com/posts')
       .then(response => response.json())
       .then(array => {
@@ -29,7 +35,8 @@
           list.appendChild(listItemTitle);
           list.appendChild(listItemDescription);
         }
-        answer.replaceChild(list, postList);
+        answer.replaceChild(list, loading);
+        clearInterval(id);
       })
   })
 
@@ -40,5 +47,14 @@
   cw3.addEventListener("click", function () {
     //TODO
   })
-
 })();
+
+function ellipsisMove(id, elem) {
+  var dots = 0;
+  clearInterval(id);
+  nid = setInterval(frame, 10);
+  function frame() {
+    elem.innerHTML = ".".repeat((dots++ % 3)+1);
+  }
+  return nid;
+}
